@@ -1,0 +1,3 @@
+python berline_train_multi.py '../data/berlin' 'hsi+sar' 0 0 79.2
+
+去掉种子初始化  81.0？？什么鬼
