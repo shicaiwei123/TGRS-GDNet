@@ -6,7 +6,7 @@ import torchvision.transforms as tt
 import torch
 import os
 
-from datasets.augsburg import Augsburg_multi, Augsburg_single,Augsburg_multi_tri
+from datasets.augsburg import Augsburg_multi, Augsburg_single,Augsburg_multi_tri,Augsburg_decouple_multi
 from lib.processing_utils import get_mean_std
 from datasets.dataset_proceess_utils import ToTensor_multi, RandomHorizontalFlip_multi, Normaliztion_multi, \
     ColorAdjust_multi, RandomVerticalFlip_multi
@@ -82,6 +82,48 @@ def augsburg_multi_dataloader(train, args):
             num_workers=4)
 
     return augsburg_data_loader
+
+
+
+
+def augsburg_decouple_multi_dataloader(train, args):
+    # dataset and data loader
+    if train:
+        # print(args)
+        modality_path_1 = os.path.join(args.data_root, 'train',args.pair_modalities[0])
+        modality_path_2 = os.path.join(args.data_root, 'train',args.pair_modalities[1])
+        label_train_path = os.path.join(args.data_root,
+                                        'train/labels.txt')
+        huston2013_multi_dataset = Augsburg_decouple_multi(modality_path_1=modality_path_1, modality_path_2=modality_path_2,
+                                                label_path=label_train_path,
+                                                data_transform=augsburg_multi_transforms_train, args=args)
+        huston2013_data_loader = torch.utils.data.DataLoader(
+            dataset=huston2013_multi_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            num_workers=4)
+    else:
+        # print(args)
+        modality_path_1 = os.path.join(args.data_root,
+                                       'test',args.pair_modalities[0])
+        modality_path_2 = os.path.join(args.data_root,
+                                       'test',args.pair_modalities[1])
+        label_train_path = os.path.join(args.data_root,
+                                        'test/labels.txt')
+        huston2013_multi_dataset = Augsburg_decouple_multi(modality_path_1=modality_path_1, modality_path_2=modality_path_2,
+                                                label_path=label_train_path,
+                                                data_transform=augsburg_single_transforms_test, args=args)
+
+        huston2013_data_loader = torch.utils.data.DataLoader(
+            dataset=huston2013_multi_dataset,
+            batch_size=1024,
+            shuffle=False,
+            num_workers=16)
+
+    return huston2013_data_loader
+
+
+
 
 
 def augsburg_single_dataloader(train, args):

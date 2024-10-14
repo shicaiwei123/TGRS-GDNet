@@ -1,5 +1,5 @@
 # MSHNet
-Code for MSH-Net: Modality-Shared Hallucination with Joint Adaptation Distillation for Remote Sensing Image Classification Using Missing Modalities
+Code for Gradient Deocouped Learning with Unimodal Regularization for Multimodal Remote Sensing Image Classification
 
 ## Dependency
 - Ubuntu20.04
@@ -10,11 +10,18 @@ Code for MSH-Net: Modality-Shared Hallucination with Joint Adaptation Distillati
 ## Dataset
 - Download
   - Original [Huston20013](https://github.com/danfenghong/ISPRS_S2FL), [Augsburg](https://github.com/danfenghong/ISPRS_S2FL)
-  - Preprocessing [Huston2013](https://drive.google.com/drive/folders/1YSbAFzD9MKcNMBbYTeax_c1XNkSjZC_a) [Augsburg](https://drive.google.com/drive/folders/1f4bvCefoJ9Xd6QTbByDSBY5x7pAW1u2q)
+  - Preprocessing [Huston2013](https://drive.google.com/drive/folders/1YSbAFzD9MKcNMBbYTeax_c1XNkSjZC_a) [Augsburg](https://drive.google.com/drive/folders/1f4bvCefoJ9Xd6QTbByDSBY5x7pAW1u2q), [berlin](https://pan.baidu.com/s/10Cx9Rpqu03n5WsUS2x8tpw?pwd=f2fh)
   - precessing code: https://github.com/danfenghong/IEEE_TGRS_GCN/tree/master/DataGeneration_Functions
+
+
+- Dataset convert
+  - since the processed dataset in berlin and augsburg dataset, such as hsi.dat, is very large, it's hard to load them in a small GPU. We decouple the single  '.dat' file to multiple ‘.npy’ file  with [dataset_convert.py](test/dataset_convert.py)
+  - we also provide the converted dataset [Augsburg](https://pan.baidu.com/s/1KwUOHDXxIRwX3OArZ_2vPg?pwd=q7hc), [Berlin](https://pan.baidu.com/s/1vjF0iNoNyLUhgNE_bC_icw?pwd=vayx)
+
+
 - Build soft link
   ```bash
-  cd MSHNET
+  cd GDNet
   mkdir data
   ln -s path_to_download_data ./data/dataset_name
   
@@ -31,70 +38,58 @@ Code for MSH-Net: Modality-Shared Hallucination with Joint Adaptation Distillati
     - huston2013
     - Augsburg
   - operation
-    - S: single modality model training
     - F: Fusing multimodal data
-    - T: transfer modality-shared knowledge
-    - S2F: modality share and specific fusion
   - modality
     - H: HSI modality
     - S: Sar modality
     - L: LiDAR modality
     - M: MS modality
     - D: DSM modality
-- example
-  - huston2013_S_H_X.sh
-  - training the single modality model with HSI modality 
 
 ### Train process
   - To average the results, for each sub-task, we train three models and choose the one with middle performance for the following task. 
 
-### Train the single modality baseline
+
+
+
+### Train multimodal  model with GDL
 ```bash
 cd src
-bash huston2013_S_L_X.sh
-bash huston2013_S_M_X.sh
-bash huston2013_S_H_X.sh
-bash augsburg_S_H_X.sh
-bash augsburg_S_S_X.sh
-bash augsburg_S_D_X.sh
+bash huston2013_F_HL_GDL.sh
+bash berlin_F_HS_GDL.sh
+bash augsburg_F_HS_GDL.sh
+bash augsburg_F_HD_GDL.sh
 ```
 
-### Train multimodal teacher
+
+
+### Train multimodal  baseline
 ```bash
 cd src
 bash huston2013_F_HL_X.sh
-bash huston2013_F_HM_X.sh
-bash augsburg_F_HSD_X.sh
+bash berlin_F_HS_X.sh
+bash augsburg_F_HS_X.sh
+bash augsburg_F_HD_X.sh
 ```
 
-### Modality-shared hallucination
 
+
+### Test
 ```bash
-cd src
-bash huston2013_T_HM_H.sh
-bash huston2013_T_HM_M.sh
-bash huston2013_T_HL_L.sh
-bash huston2013_T_HL_H.sh
-bash augsburg_T_HS_H.sh
-bash augsburg_T_HS_L.sh
-bash augsburg_T_HSD_H.sh
-bash augsburg_T_HSD_S.sh
-bash augsburg_T_HSD_D.sh
+cd test
+python multimodal_baseline_test.py 0 0 0 0 
 ```
 
-### Fusion modality-shared and specific information
 
-```bash
-cd src
-bash huston2013_S2F_HL_L.sh
-bash huston2013_S2F_HL_H.sh
-bash huston2013_S2F_HM_M.sh
-bash huston2013_S2F_HM_H.sh
-bash augsburg_S2F_HS_HS_S.sh
-bash augsburg_S2F_HS_HS_H.sh
-bash augsburg_S2F_HSD_H.sh
-bash augsburg_S2F_HSD_S.sh
-bash augsburg_S2F_HSD_D.sh
 
-```
 
+## Visualization
+- Prepairation
+  - the patch of each pixel from the dataset. You can get those with the precessing code: https://github.com/danfenghong/IEEE_TGRS_GCN/tree/master/DataGeneration_Functions by processed all image pixels. 
+  - the pretrained model
+  - details can be seen in the function of **huston_prediction_plot** and **augsburg_prediction_plot** in prediction_plot.py  
+- Code
+    ```bash
+    cd test
+    python prediction_plot.py
+    ```

@@ -1304,7 +1304,6 @@ def train_base_multi_PE_Formal(model, cost, optimizer, train_loader, test_loader
 
     models_dir = args.model_root + '/' + args.name + '.pt'
     log_dir = args.log_root + '/' + args.name + '.csv'
-    mse_func = nn.MSELoss()
     criterion = nn.CrossEntropyLoss(reduction='none')
 
     # save args
